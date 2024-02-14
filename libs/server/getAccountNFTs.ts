@@ -22,7 +22,7 @@ export async function getNFTsFromLedger(account: string) {
   console.log('NFTs', txInfo.balances)
   var nfts = []
   for(let i=0; i<txInfo.balances.length; i++){
-    if(txInfo.balances[i].asset_code.startsWith('GIVEXLM')){
+    if(txInfo.balances[i].asset_code.startsWith('GIVE')){
       nfts.push({
         code: txInfo.balances[i].asset_code,
         issuer: txInfo.balances[i].asset_issuer,

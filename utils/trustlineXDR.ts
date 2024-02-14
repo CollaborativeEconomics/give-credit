@@ -1,23 +1,22 @@
-import * as StellarSdk from 'stellar-sdk'
-
+import { Asset, BASE_FEE, Horizon, Networks, Operation, TransactionBuilder } from '@stellar/stellar-sdk'
 
 export default async function trustlineXDR(account, code, issuer){
   console.log('Trustline for:', account)
   console.log('Code/issuer:', code, issuer)
-  const server = new StellarSdk.Server(process.env.NEXT_PUBLIC_STELLAR_RPC_URI)
-  const myNFT  = new StellarSdk.Asset(code, issuer)
+  const server = new Horizon.Server(process.env.NEXT_PUBLIC_STELLAR_RPC_URI)
+  const myNFT  = new Asset(code, issuer)
   const destin = await server.loadAccount(account)
-  const phrase = process.env.NEXT_PUBLIC_STELLAR_NETWORK=='mainnet' ? StellarSdk.Networks.PUBLIC : StellarSdk.Networks.TESTNET
+  const phrase = process.env.NEXT_PUBLIC_STELLAR_NETWORK=='mainnet' ? Networks.PUBLIC : Networks.TESTNET
   console.log('Network:', process.env.NEXT_PUBLIC_STELLAR_NETWORK, phrase)
   console.log('Destin:', JSON.stringify(destin,null,2))
   console.log('Destin:', destin)
 
-  var trustTx = new StellarSdk.TransactionBuilder(destin, {
+  var trustTx = new TransactionBuilder(destin, {
     networkPassphrase: phrase,
-    fee: StellarSdk.BASE_FEE
+    fee: BASE_FEE
   })
 
-  const trustline = StellarSdk.Operation.changeTrust({
+  const trustline = Operation.changeTrust({
     asset: myNFT,
     limit: '1000000000',
     source: account

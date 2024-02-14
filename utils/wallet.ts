@@ -1,4 +1,5 @@
-import * as StellarSDK from 'stellar-sdk'
+//import * as StellarSDK from '@stellar/stellar-sdk'
+import { Asset, Horizon, Memo, Operation, TransactionBuilder } from '@stellar/stellar-sdk'
 import {isConnected, getPublicKey, signTransaction} from "@stellar/freighter-api"
 
 export default class Wallet {
@@ -24,11 +25,11 @@ export default class Wallet {
   async connect() {
     try {
       console.log('CONNECT...')
-      //this.soroban = new StellarSDK.Server(this.sbnurl)
-      this.horizon = new StellarSDK.Server(this.hznurl)
+      //this.soroban = new SorobanRpc.Server(this.sbnurl)
+      this.horizon = new Horizon.Server(this.hznurl)
       this.account = await getPublicKey()
       return {success:true, account:this.account}
-    } catch(ex) {
+    } catch(ex:any) {
       console.error(ex)
       return {success:false, account:''}
     }
@@ -41,7 +42,7 @@ export default class Wallet {
       let net = process.env.NEXT_PUBLIC_STELLAR_PASSPHRASE
       const sgn = await signTransaction(xdr, {networkPassphrase:net})
       console.log('SGN:', sgn)
-      const txs = StellarSDK.TransactionBuilder.fromXDR(sgn, net)
+      const txs = TransactionBuilder.fromXDR(sgn, net)
       console.log('TXS', txs)
       const result = await this.horizon.submitTransaction(txs)
       console.log('RES', result)
@@ -54,11 +55,13 @@ export default class Wallet {
       } else {
         return {success:false, error:'Signature rejected by user', result, txid}
       }
-    } catch(ex) {
+    } catch(ex:any) {
       console.error(ex)
+      console.error('Codes:', ex?.response?.data?.extras?.result_codes)
       return {success:false, error:ex.message}
     }
   }
+
   async payment(dst:string, amt:string, memo:string) {
     try {
       let nwk = process.env.NEXT_PUBLIC_STELLAR_NETWORK.toUpperCase()
@@ -70,18 +73,18 @@ export default class Wallet {
       console.log('Paying', amt, 'XLM to', dst, 'Memo', memo)
       let act = await this.horizon.loadAccount(pub)
       let fee = await this.horizon.fetchBaseFee() // 100
-      let opr = StellarSDK.Operation.payment({
+      let opr = Operation.payment({
        destination: dst,
-       asset: StellarSDK.Asset.native(),
+       asset: Asset.native(),
        amount: amt
       })
       // TODO: fix type error: TransactionBuilderOptions <<<
       const opt = { fee, network:nwk, networkPassphrase:net }
-      let txn = new StellarSDK.TransactionBuilder(act, opt)
+      let txn = new TransactionBuilder(act, opt)
        //.setNetworkPassphrase(net)
        .addOperation(opr)
        .setTimeout(30)
-      if(memo) { txn.addMemo(StellarSDK.Memo.text(memo)) }
+      if(memo) { txn.addMemo(Memo.text(memo)) }
       const built = txn.build()
       const txid  = built.hash().toString('hex')
       const xdr   = built.toXDR()
@@ -99,8 +102,8 @@ export default class Wallet {
       //const txs = new StellarSDK.Transaction(sgn)
       //console.log('TXS', txs)
 
-      //const txs = new StellarSDK.TransactionBuilder.fromXDR(sgn, this.hznurl)
-      const txs = StellarSDK.TransactionBuilder.fromXDR(sgn, net)
+      //const txs = new TransactionBuilder.fromXDR(sgn, this.hznurl)
+      const txs = TransactionBuilder.fromXDR(sgn, net)
       console.log('TXS', txs)
       const result = await this.horizon.submitTransaction(txs)
       console.log('RES', result)
@@ -112,7 +115,7 @@ export default class Wallet {
       } else {
         return {success:false, error:'Payment rejected by user', result, txid}
       }
-    } catch(err) {
+    } catch(err:any) {
       console.error('E>>', err)
       return {success:false, error:err}
     }
@@ -129,7 +132,7 @@ export default class Wallet {
       let result = await fetch(url, options)
       let data = await result.json()
       return data
-    } catch (ex) {
+    } catch (ex:any) {
       console.error(ex)
       return { error: ex.message }
     }

@@ -1,7 +1,7 @@
 // Mints NFT and returns tokenId
 //   metauri: uri to metadata
 
-import * as StellarSdk from 'stellar-sdk'
+import { Asset, BASE_FEE, Keypair, Horizon, Memo, Networks, Operation, TransactionBuilder } from '@stellar/stellar-sdk'
 
 interface MintResponse {
   success?: boolean;
@@ -12,20 +12,20 @@ interface MintResponse {
 export default async function mintNFT(account:string, metauri: string):Promise<MintResponse>{
   console.log('Minting...', account, metauri)
   try {
-    const server  = new StellarSdk.Server(process.env.STELLAR_RPC_URI)
-    const minter  = StellarSdk.Keypair.fromSecret(process.env.CFCE_MINTER_WALLET_SEED) // GDXMQPQAPJ2UYPTNC53ZQ756TIIGFWVDRAP2QEWK6KVBRHXE3DJMLDEG
+    const server  = new Horizon.Server(process.env.STELLAR_RPC_URI)
+    const minter  = Keypair.fromSecret(process.env.CFCE_MINTER_WALLET_SEED) // GDXMQPQAPJ2UYPTNC53ZQ756TIIGFWVDRAP2QEWK6KVBRHXE3DJMLDEG
     const issuer  = minter.publicKey()
     const source  = await server.loadAccount(issuer)
-    const myNFT   = new StellarSdk.Asset('GIVEXLM', issuer)
-    const phrase  = process.env.STELLAR_NETWORK=='mainnet' ? StellarSdk.Networks.PUBLIC : StellarSdk.Networks.TESTNET
+    const myNFT   = new Asset('GIVE', issuer)
+    const phrase  = process.env.STELLAR_NETWORK=='mainnet' ? Networks.PUBLIC : Networks.TESTNET
     const timeout = 300 // five minutes
 
-    var mintTx = new StellarSdk.TransactionBuilder(source, {
+    var mintTx = new TransactionBuilder(source, {
       networkPassphrase: phrase,
-      fee: StellarSdk.BASE_FEE
+      fee: BASE_FEE
     })
 
-    let mintOp = StellarSdk.Operation.payment({
+    let mintOp = Operation.payment({
       source: issuer,
       destination: account,
       asset: myNFT,
@@ -34,7 +34,7 @@ export default async function mintNFT(account:string, metauri: string):Promise<M
 
     let mint = mintTx
       .addOperation(mintOp)
-      //.addMemo(StellarSdk.Memo.text(metauri))
+      //.addMemo(Memo.text(metauri))
       .setTimeout(timeout)
       .build()
     

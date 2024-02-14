@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import StellarClient from 'stellar-sdk';
+//import StellarClient from 'stellar-sdk';
+import { StellarClient } from '@stellar/stellar-sdk'
 
 console.log('preparing stellar client', process.env.STELLAR_RPC_URI);
 //const client = new StellarClient(process.env.STELLAR_RPC_URI, {
