@@ -41,7 +41,7 @@ export default async function mintNFT(account:string, metauri: string):Promise<M
     //console.log('Minting...')
     mint.sign(minter)
     let minted = await server.submitTransaction(mint)
-    console.log('Minted', minted)
+    //console.log('Minted', minted)
     if(minted?.successful){
       // StellarSDK interface from server.submitTransaction response without paging_token
       // Clone the result and get the paging_token from there

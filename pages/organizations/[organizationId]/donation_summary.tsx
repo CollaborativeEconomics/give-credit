@@ -216,7 +216,7 @@ export default function Donate({
     //const metaurl  = 'https://gateway.lighthouse.storage/ipfs/Qme4c3dERwN7xNrC7wyDgbxF4bQ5aS9uNwaeXdXbWTeabh'
     $$('message', 'Minting NFT, wait...')
     const minted = await postApi('nft/mint', {txid, initid, donor, destin, amount})
-    console.log('Minted', minted)
+    //console.log('Minted', minted)
     if(!minted?.success){
       $$('message', 'Error minting NFT')
       return minted

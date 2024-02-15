@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import upload from 'libs/nft/upload'
 import mint from 'libs/nft/mint'
 import fetchLedger from 'libs/server/fetchLedger'
-import { getUserByWallet, getOrganizationById, getInitiativeById, createNFT } from 'utils/registry'
+import { newUser, newUserWallet, getUserByWallet, getOrganizationById, getInitiativeById, createNFT } from 'utils/registry'
 import getRates from 'utils/rates'
 
 /*
@@ -38,14 +38,14 @@ export default async function Mint(req: NextApiRequest, res: NextApiResponse) {
       console.log('ERROR', 'Transaction not valid')
       return res.status(500).json({ error: 'Transaction not valid' })
     }
-    console.log('TXINFO', txInfo)
+    //console.log('TXINFO', txInfo)
     const page = BigInt(txInfo.paging_token) + BigInt(1)
     const opid = page.toString()
     //const tag  = getTagFromMemo(txInfo.memo)
 
     // Get op info
     const opInfo = await fetchLedger('/operations/'+opid)
-    console.log('OPINFO', opInfo)
+    //console.log('OPINFO', opInfo)
     if(!opInfo || opInfo.status==404) {
       console.log('ERROR', 'Operation not found')
       return res.status(500).json({ error: 'Operation info not found' })
@@ -65,20 +65,30 @@ export default async function Mint(req: NextApiRequest, res: NextApiResponse) {
 
     // Get user data
     console.log('Donor', donor)
-    const userInfo = await getUserByWallet(donor)
+    let userInfo = await getUserByWallet(donor)
     console.log('USER', userInfo)
     const userId = userInfo?.id || ''
+    if(!userId){
+      const email = donor.substr(0,10).toLowerCase() + '@example.com'
+      const user = await newUser({name:'Anonymous', email, wallet:donor})
+      userInfo = user.data
+      console.log('USER2', userInfo)
+      if(userInfo){
+        const wallet = await newUserWallet({userId:userInfo.id, address:donor, chain:'Stellar'})
+        console.log('WALLET', wallet)
+      }
+    }
 
     // Get initiative info
     const initiative = await getInitiativeById(initid)
     const initiativeId = initiative?.id || initid
     const initiativeName = initiative?.title || 'Direct Donation'
-    console.log('INITIATIVE', initiative)
+    //console.log('INITIATIVE', initiative)
 
     // Get org data
     console.log('Org wallet', organizationAddress)
     const orgInfo = await getOrganizationById(initiative?.organizationId)
-    console.log('ORG', orgInfo)
+    //console.log('ORG', orgInfo)
     if(!orgInfo || orgInfo?.error) {
       console.log('Organization not found', orgInfo?.error)
       return res.status(500).json({ error: 'Organization not found' })
