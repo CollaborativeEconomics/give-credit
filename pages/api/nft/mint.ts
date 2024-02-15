@@ -76,6 +76,9 @@ export default async function Mint(req: NextApiRequest, res: NextApiResponse) {
       if(userInfo){
         const wallet = await newUserWallet({userId:userInfo.id, address:donor, chain:'Stellar'})
         console.log('WALLET', wallet)
+      } else {
+        console.log('ERROR', 'User not found')
+        return res.status(500).json({error:'User not found'})
       }
     }
 

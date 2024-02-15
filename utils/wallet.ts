@@ -1,9 +1,10 @@
 //import * as StellarSDK from '@stellar/stellar-sdk'
 import { Asset, Horizon, Memo, Operation, TransactionBuilder } from '@stellar/stellar-sdk'
-import {isConnected, getPublicKey, signTransaction} from "@stellar/freighter-api"
+import {isConnected, getNetwork, getPublicKey, signTransaction} from "@stellar/freighter-api"
 
 export default class Wallet {
   account = ''
+  network = ''
   horizon = null
   soroban = null
   hznurl  = process.env.NEXT_PUBLIC_STELLAR_RPC_URI
@@ -28,7 +29,8 @@ export default class Wallet {
       //this.soroban = new SorobanRpc.Server(this.sbnurl)
       this.horizon = new Horizon.Server(this.hznurl)
       this.account = await getPublicKey()
-      return {success:true, account:this.account}
+      this.network = (await getNetwork() || '').toLowerCase()
+      return {success:true, account:this.account, network:this.network}
     } catch(ex:any) {
       console.error(ex)
       return {success:false, account:''}

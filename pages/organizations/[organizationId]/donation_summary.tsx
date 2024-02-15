@@ -123,6 +123,16 @@ export default function Donate({
       return
     }
     setCookie('wallet', donor)
+
+    // Check network
+    const useNetwork = process.env.NEXT_PUBLIC_STELLAR_NETWORK||''
+    if(info.network!==useNetwork){
+      console.log('Error: Wrong network', info.network)
+      console.log('Expected network:', useNetwork)
+      $$('message', 'Select '+useNetwork+' network in Freighter Wallet')
+      return
+    }
+
     const memo = destinTag ? 'tag:'+destinTag : ''
     //const {txid, xdr} = await PaymentXDR(donor, destin, amount, currency, issuer, memo)
     const result = await wallet.payment(destin, amount, memo)
