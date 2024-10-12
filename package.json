@@ -15,7 +15,7 @@
     "@aws-sdk/client-pinpoint": "^3.95.0",
     "@aws-sdk/client-pinpoint-email": "^3.95.0",
     "@aws-sdk/client-s3": "^3.216.0",
-    "@lighthouse-web3/sdk": "^0.1.12",
+    "@lighthouse-web3/sdk": "^0.3.7",
     "@stellar/freighter-api": "^1.7.1",
     "@stellar/stellar-sdk": "^11.2.2",
     "aws-sdk": "^2.1111.0",
